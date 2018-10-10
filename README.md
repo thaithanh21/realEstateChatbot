@@ -11,4 +11,4 @@ The source code includes:
 This folder includes all the code of the chatbot web interface.
 
 **frequent-api**
-This folder includes the code of the core for recommend feature
+This folder includes the code for recommend feature
