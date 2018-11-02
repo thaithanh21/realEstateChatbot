@@ -2,9 +2,10 @@ const axios = require('axios');
 
 const ASPECT_DISCOVERY_ENDPOINT = 'http://35.240.240.251/api/v1/real-estate-extraction';
 const SEARCH_ENDPOINT = 'http://35.240.208.167/api/v1/posts';
-const RECOM_ENDPOINT = ' http://127.0.0.1:5000/recom/v1/posts';
+const RECOM_ENDPOINT = 'http://35.186.146.65/recom/v1/posts';
 const NUM_RESULTS = 5;
 const MAX_RESULTS = 30;
+const MAX_RECOM = 5;
 
 const ASPECTS = {
   "addr_street": "Đường",
@@ -107,83 +108,75 @@ function compare(array1,array2) {
       throw new Error(error);
     }
   }
-  async function callTagsAPI(data) {
-    let requestBody = []
-    requestBody.push(data)
-    console.log(requestBody)
-    try {
-      let results = await axios.post(ASPECT_DISCOVERY_ENDPOINT, JSON.stringify(requestBody), {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      console.log(results)
-      return results;
-
-    } catch (error) {
-      console.log(error);
-      throw new Error(error);
-    }
-  }
 
   function hasUsefulAspects(tags) {
     let filtered = tags.filter(x => x.type !== 'normal')
     return filtered;
   }
-  function getQuesion(attrName,attrValue) {
+  function getQuesion(attrName,attrValue,badAspect) {
   	let question = {} 
-  	if(attrName=='addr_street' ||
-  		attrName=='addr_district' || 
-  		attrName=='addr_ward'|| 
-  		attrName=='addr_city'){
-	    question.text ='Bạn có muốn BDS này ở:'
+  	var temp = []
+  	if(badAspect == 'none'){
+	  	if(attrName=='addr_street' ||
+	  		attrName=='addr_district' || 
+	  		attrName=='addr_ward'|| 
+	  		attrName=='addr_city'){
+		    question.text ='Bạn có muốn BDS này ở:'
+		}
+		else if(attrName=='surrounding'||
+			attrName=='surrounding_name'||
+			attrName=='surrounding_characteristics'){
+		    question.text = 'Bạn có muốn khu vực xung quanh hay gần BDS là:'
+		}
+		else if(attrName=='interior_room'||
+			attrName=='interior_floor'||
+			attrName=='legal'){
+		    question.text = 'Bạn muốn BDS có:'
+		}
+		else if(attrName=='orientation'){
+		        question.text ='Bạn có muốn BDS có hướng:'
+		}
+		else if(attrName=='area'){
+		        question.text ='Bạn có muốn BDS có kích trước:'
+		}
+		else if(attrName=='transaction_type'){
+		        question.text ='Bạn muốn:'
+		}
+		else if(attrName=='realestate_type'){
+		        question.text ='Bạn muốn BDS là:'
+		}
+		else if(attrName=='price'){
+		        question.text ='Bạn có muốn BDS có giá:'
+		}
+		else if(attrName=='position'){
+		    question.text ='Bạn muốn BDS có chỗ ra vào ở:'    
+		}
+	  	else if(attrName=='potential'){
+		    question.text ='Bạn dùng BDS này để:'    
+		}
+		else if(attrName=='project'){
+		    question.text ='Bạn có muốn BDS thuộc project:'    
+		}
+		else {
+			question.text ='Những lựa chọn khác'
+		}
+		for (var i = 0; i < attrValue.length; i++) {
+		    var dict = {};
+		    dict.title = attrValue[i];
+		    dict.payload = attrValue[i];
+		    console.log(attrValue[i])
+		    temp.push(dict)
+		}
 	}
-	else if(attrName=='surrounding'||
-		attrName=='surrounding_name'){
-	    question.text = 'Bạn có muốn khu vực xung quanh hay gần BDS là:'
-	}
-  else if(attrName=='surrounding_characteristics'){
-    question.text = 'Bạn muốn khu vực xung quanh BĐS có đặc điểm này không?'
-  }
-	else if(attrName=='interior_room'||
-		attrName=='interior_floor'||
-		attrName=='legal'){
-	    question.text = 'Bạn muốn BDS có:'
-	}
-	else if(attrName=='orientation'){
-	        question.text ='Bạn có muốn BDS có hướng:'
-	}
-	else if(attrName=='area'){
-	        question.text ='Bạn có muốn BDS có kích trước:'
-	}
-	else if(attrName=='transaction_type'){
-	        question.text ='Bạn muốn:'
-	}
-	else if(attrName=='realestate_type'){
-	        question.text ='Bạn muốn BDS là:'
-	}
-	else if(attrName=='price'){
-	        question.text ='Bạn có muốn BDS có giá:'
-	}
-	else if(attrName=='position'){
-	    question.text ='Bạn muốn BDS có chỗ ra vào ở:'    
-	}
-  	else if(attrName=='potential'){
-	    question.text ='Bạn dùng BDS này để:'    
-	}
-	else if(attrName=='project'){
-	    question.text ='Bạn có muốn BDS thuộc project:'    
-	}
-	else {
-		question.text ='Những lựa chọn khác'
-	}
-	var temp = []
-	for (var i = 0; i < attrValue.length; i++) {
-	    var dict = {};
-	    dict.title = attrValue[i];
-	    dict.payload = attrValue[i];
-	    console.log(attrValue[i])
-	    temp.push(dict)
+	else{
+		question.text ='Lựa chọn thay thế '+ badAspect['content']
+		for (var i = 0; i < attrValue.length; i++) {
+		    var dict = {};
+		    dict.title = attrValue[i];
+		    dict.payload = 'Thay thế '+attrValue[i];
+		    console.log(attrValue[i])
+		    temp.push(dict)
+		}
 	}
 	var dict = {
 		title:'Không quan tâm',
@@ -197,11 +190,8 @@ function compare(array1,array2) {
     try {
       let results = await callSearchAPI(input, isText);
       let tags = []
-      if(isText){
-	    tags = await callTagsAPI(input)
-	    tags = tags.data
-	    tags = tags[0].tags
-	  }
+      if(isText)
+	    tags = await check_aspects(input)
 	  else
 	  	tags = input;
       results = results.data;
@@ -230,6 +220,7 @@ function compare(array1,array2) {
   async function recomApi(userId) {
   	let data = history[userId].query
   	let requestBody = {}
+  	requestBody.numre = MAX_RECOM
     requestBody.tags = data
     try {
       let results = await axios.post(RECOM_ENDPOINT, JSON.stringify(requestBody), {
@@ -446,11 +437,21 @@ function compare(array1,array2) {
     });
   })
   function addAspectsVer2(oldAspect, aspects) {
-      let tags = []
-      tags.push(aspects)
-      tags = getCurrentAspects(tags)
-      let newQuery = oldAspect.concat(tags)
-      return newQuery
+      let tags = [];
+      tags.push(aspects);
+      tags = getCurrentAspects(tags);
+      let newQuery = oldAspect.concat(tags);
+      return newQuery;
+  }
+  function replaceAspects(oldAspect,good,bad){
+    for(var index = 0;index<oldAspect.length;index++){
+    	if((oldAspect[index].content == bad.content) 
+    		&& (oldAspect[index].type == bad.type)){
+    		oldAspect[index] = good
+    	}
+    }
+	return oldAspect;
+
   }
   function custom_hear_middleware(patterns, message) {
   	let userId = message.user;
@@ -497,11 +498,61 @@ function compare(array1,array2) {
         let temp = message.text
         history[user].addRe = temp
         convo.say({
-		            text: `Bạn có muốn xem thêm tư vấn vào tìm kiếm?`,
+		            text: `Bạn có muốn thêm tư vấn vào tìm kiếm?`,
 		            quick_replies: [
 		              {
 		                title: 'CÓ',
 		                payload: 'Thêm tư vấn vào'
+		              },
+		              {
+		                title: 'KHÔNG',
+		                payload: 'Tư vấn lại từ đầu'
+		              },
+		            ],
+		        });
+        
+  	});
+  })
+  function replace_hear_middleware(patterns,message){
+  	let userId = message.user;
+  	if(message.text == 'Bắt đầu tư vấn'){
+  		return false;
+  	}
+  	else if(typeof history[userId] !== 'undefined'){
+		if('recom' in history[userId]){
+			if(history[userId].recom && history[userId].recom.length){
+			let currentRecom = history[userId].currRe;
+			let recom = history[userId].recom[currentRecom];
+			let recomTags = history[userId].recomTags[currentRecom];
+		  	for(var i = 0;i<recom.length;i++){
+			    if (message.text == 'Thay thế '+recom[i]) {
+			    	message.text = {
+			    		content:recom[i], type:recomTags
+			    	}
+			        return true;
+			    }
+			}
+		}
+		}
+		else{
+			return false;
+		}
+	}
+	else{
+		return false;
+	}
+  }
+  controller.hears('Replace recomendation', 'message_received', replace_hear_middleware ,function (bot, message) {
+  	bot.startConversation(message, function (err, convo) {
+        let user = message.user
+        let temp = message.text
+        history[user].addRe = temp
+        convo.say({
+		            text: `Bạn có muốn thay thế tư vấn vào tìm kiếm?`,
+		            quick_replies: [
+		              {
+		                title: 'CÓ',
+		                payload: 'Thay thế tư vấn'
 		              },
 		              {
 		                title: 'KHÔNG',
@@ -522,50 +573,89 @@ function compare(array1,array2) {
     history[user].query = result
 	search(bot,result,false,message)
   })
+  controller.hears('Thay thế tư vấn','message_received',function(bot,message){
+  	user = message.user
+  	let temp = history[user].addRe;
+  	let currRe = history[user].currRe;
+  	let bad = history[user].badAspect[currRe];
+  	let oldQuery = history[user].query;
+  	console.log(bad)
+    //let currentAspects = getCurrentAspects(oldQuery)
+    let result = replaceAspects(oldQuery,temp,bad)
+    result = getCurrentAspects(result)
+    console.log(result)
+    history[user].query = result
+	search(bot,result,false,message)
+  })
 
   controller.hears('Bắt đầu tư vấn', 'message_received', async (bot, message) => {
   		user = message.user;
   		let data = await recomApi(user)
   		data = data.data
-  		/*let query = history[user].query
-  		query = getCurrentAspects(query);
-  		newQuery = {
-  			content:'kinh doanh',
-  			type:'potential'
-  		}
-  		result = addAspectsVer2(query,newQuery);
-  		result = getCurrentAspects(result)
-  		search(bot,result,false,message)
-  		*/
   		recom = []
   		tags = []
+  		if(data['bad_aspect']){
+  			bad_aspect = data['bad_aspect'];
+  			bad_aspectlen = bad_aspect.length
+  		}
+  		else
+  			bad_aspectlen = 0
+  		bad_as = []
+  		// var bad_aspectle = bad_aspect.length
   		for(var key in data){
-	        var attrName = key;
-	       	var attrValue = data[key];
-		    recom.push(data[key]);
-		    tags.push(key);
+  			if(key == 'bad_aspect'){}
+  			else{
+		        var attrName = key;
+		       	var attrValue = data[key];
+		       	var bool = true;
+		       	var replace = false;
+		       	for (var key=0;key<bad_aspectlen;key++){
+		       		if(bad_aspect[key].type == attrName){
+		       			for(var val=0;val<attrValue.length;val++){
+							if(attrValue[val] == bad_aspect[key].content){
+								bool = false;
+							}
+						}
+						replace = true;
+						replacer = bad_aspect[key];
+		       		}
+		       	}
+		       	
+		       	if(replace && bool){
+		       		recom.push(attrValue);
+			    	tags.push(attrName);
+			    	bad_as.push(replacer);
+		       	}
+		       	if(!replace && bool){
+		       		recom.push(attrValue);
+			    	tags.push(attrName);
+			    	bad_as.push('none');
+		       	}
+			}
 		}
-		
 		if('recom' in history[user]){
 			temprecom = history[user].recom
 			if(!(compare(temprecom,recom))){
 				history[user].recom = recom;
 				history[user].currRe = 0;
 				history[user].recomTags = tags;
+				history[user].badAspect = bad_as;
 			}
 		}
 		else{
 			history[user].recom = recom;
 			history[user].currRe = 0;
 			history[user].recomTags = tags;
+			history[user].badAspect = bad_as;
 		}
 		bot.startConversation(message,function (err, convo) {
 	    if(typeof history[user].recom != 'undefined' && history[user].recom.length > 0){
 	    	let currentRecom = history[user].currRe
 	    	let attrValue = history[user].recom
 	    	let attrName = history[user].recomTags
+	    	let badAspect = history[user].badAspect
 	    	if(currentRecom < attrName.length){
-		    	let question = getQuesion(attrName[currentRecom],attrValue[currentRecom]);
+		    	let question = getQuesion(attrName[currentRecom],attrValue[currentRecom],badAspect[currentRecom]);
 		    	convo.say(question)
 		    }
 		    else{
