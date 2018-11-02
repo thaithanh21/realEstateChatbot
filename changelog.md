@@ -8,6 +8,7 @@ Version 2.2:
 	"numre":5
 }
 - API output example:
+
 {
     "bad_aspect": [
         {
