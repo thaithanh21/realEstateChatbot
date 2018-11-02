@@ -1,7 +1,7 @@
 Version 2.2:
  - Recommendation feature API is deployed in gcloud
   send post request to http://35.186.146.65/recom/v1/posts
- - API input example:
+ - API input example: *numre: maximum number of ouput aspect* 
 {
 	"tags":[{"content": "nhà", "type": "realestate_type"}, {"content": "quận 1", "type": "addr_district"}, {"content": "đầm sen", "type": "surrounding_name"}],
 	"numre":5
