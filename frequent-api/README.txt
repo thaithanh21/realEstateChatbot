@@ -14,5 +14,6 @@ if your machine cant run Data_converter. Use this generated data:
 
 https://1drv.ms/f/s!An1UosdcVaRLiAfS2RKij9I-C2Cq
 
+move frequentItemsetFP.json or frequentItemsetIT.json to recommend-app folder
 
-run api.py (frequentItemsFP.json as default)
+run Api.py in local or deploy to gcloud 
