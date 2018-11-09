@@ -301,6 +301,10 @@ function compare(array1,array2) {
               title: 'KHÔNG',
               payload: 'Ngừng xem kết quả'
             },
+            {
+                title: 'Tư vấn',
+                payload: 'Bắt đầu tư vấn'
+              },
           ]
         });
       }
