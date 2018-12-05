@@ -1,0 +1,130 @@
+1. LABELING service:
+URL: http://35.240.240.251/api/v1/real-estate-extraction
+
+Input: 
+[
+  "Mua nhà đường Lý Thường Kiệt, có 4 lầu diện tích từ 100 đến 120 m2, gần chợ, trường học, bệnh viện"
+]
+
+Output:
+[
+    {
+        "score": 359.773193359375,
+        "tags": [
+            {
+                "content": "mua",
+                "type": "transaction_type"
+            },
+            {
+                "content": "nhà",
+                "type": "realestate_type"
+            },
+            {
+                "content": "đường",
+                "type": "normal"
+            },
+            {
+                "content": "lý thường kiệt",
+                "type": "addr_street"
+            },
+            {
+                "content": ", có",
+                "type": "normal"
+            },
+            {
+                "content": "4 lầu",
+                "type": "interior_floor"
+            },
+            {
+                "content": "diện tích từ",
+                "type": "normal"
+            },
+            {
+                "content": "100 đến 120 m 2",
+                "type": "area"
+            },
+            {
+                "content": ", gần",
+                "type": "normal"
+            },
+            {
+                "content": "chợ",
+                "type": "surrounding"
+            },
+            {
+                "content": ",",
+                "type": "normal"
+            },
+            {
+                "content": "trường học",
+                "type": "surrounding"
+            },
+            {
+                "content": ",",
+                "type": "normal"
+            },
+            {
+                "content": "bệnh viện",
+                "type": "surrounding"
+            }
+        ]
+    }
+]
+
+2. QUERY service:
+URL: http://35.240.208.167/api/v1/posts
+
+Input:
+{
+  "query": "Cần mua nhà ở quận 1 sài gòn, giá 21 tỷ diện tích khoảng 110m2, gần trường học bệnh viện"
+}
+
+Output:
+{
+"data": [
+  {
+"_id": "https://mogi.vn/quan-1/mua-nha-mat-tien-pho/ban-nha-mat-tien-duong-nguyen-thi-minh-khai-doi-dien-dai-truyen-hinh-p-id2292458",
+"content": "_ Bán nhà mặt tiền đường nguyễn thị minh khai đối diện đài truyền hình phường đa kao q1 _Gia bán 21.9 tỷ giá tốt nhất hiện nay _Diện tích nhà 4.3 x 24 M _Tình trạng nhà 1 trệt + 2 lầu + 1 sân thượng _nhà năm trong khu vược co nhiều văn vòng đối diên công viên thảo cầm viên và đài truyền hình của thành phố _ nhà nằm trong khu vược bệnh viện trường học và trung tam mua sắm bậc nhât của thành phố _ nhà có mặt tiền rộng có thể kinh doanh đa nghành nghề siêu lợi nhuận _Gía bán 21.9 tỷ còn thương lượng _ Xem nhà chính chủ qua sđt 0938468184 liên hệ xem nhà 24/24 MTG Diện tích: 98 m Giá: 21 tỷ 900 triệu 4 phòng ngủ 3 phòng tắm Địa chỉ: Nguyễn Thị Minh Khai, Phường Đa Kao, Quận 1, TP.HCM",
+"date": ": 30/07/2018",
+"score": 0,
+"title": "Bán nhà mặt tiền đường nguyễn thị minh khai đối diện đài truyền hình p"
+}
+]
+}
+
+3. RECOMMENDING service that uses source code in frequent-api folder
+
+URL: http://35.186.146.65/recom/v1/posts
+***numre: maximum number of ouput aspect
+Input:
+{
+"tags":[
+{"content": "nhà", "type": "realestate_type"},
+{"content": "quận 1", "type": "addr_district"},
+{"content": "đầm sen", "type": "surrounding_name"}
+],
+"numre":5
+}
+
+API output example:
+{
+    "bad_aspect": [
+        {
+            "content": "đầm sen",
+            "type": "surrounding_name"
+        }
+    ],
+    "position": [
+        "mặt tiền"
+    ],
+    "potential": [
+        "kinh doanh",
+        "cho thuê"
+    ],
+    "surrounding": [
+        "chợ"
+    ],
+    "surrounding_name": [
+        "bến thành"
+    ]
+}
