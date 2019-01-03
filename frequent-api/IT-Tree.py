@@ -2,7 +2,7 @@ import json
 import pickle
 from math import exp
 import time
-start = time.time()
+start_time = time.time()
 
 data = {
     frozenset({'A'}): {1, 3, 4, 5},
@@ -15,7 +15,6 @@ data_raw = {
 
 }
 
-
 class treeNode:
     def __init__(self, nameValue, transaction, parentNode):
         self.name = nameValue
@@ -23,6 +22,7 @@ class treeNode:
         self.nodeLink = None
         self.parent = parentNode  # needs to be updated
         self.children = {}
+
 
     # increments the count variable with a given amount
     def tidre(self, newset):
@@ -33,7 +33,6 @@ class treeNode:
         print('  ' * ind, self.name, ' ', self.tid)
         for child in self.children.values():
             child.disp(ind + 1)
-
 
 
 def createTree(dataSet, minSup=1):  # create IT-tree from dataset but don't mine
@@ -61,28 +60,26 @@ def enumerate_frequent(reTree, treeNodelist, minSup):
             if (len(T) >= minSup):
                 reTree.children[treeNodelist[i]].children[X] = treeNode(X, T, reTree)
                 children.append(X)
-        if not children:
-            return None
+        if children:
+            enumerate_frequent(reTree.children[treeNodelist[i]], children, minSup)
         #print(children)
-        enumerate_frequent(reTree.children[treeNodelist[i]], children, minSup)
 
 def minSupcal(itemsetNum):
-    c = 0.0006
+    c = 0.000
     return itemsetNum*(exp(-0.4*itemsetNum-0.2)+c)
 
 
 with open('Convert_data_for_It.pkl', 'rb') as file:
     data = pickle.load(file)
     file.close()
-with open('current.pkl', 'rb') as file:
-    count = pickle.load(file)
-    file.close()
 
-MINSUP = minSupcal(count)
-print(MINSUP)
 
-myTree = createTree(data,minSupcal(count))
-print('create tree in ' + str(time.time() - start))
+# MINSUP = minSupcal(count)
+# print(MINSUP)
+
+myTree = createTree(data,333)
+#myTree = createTree(data,5)
+#print('create tree in ' + str(time.time() - start))
 
 results = []
 def traverse(treeNode):
@@ -90,22 +87,25 @@ def traverse(treeNode):
     for child in treeNode.children.values():
         traverse(child)
 def mineTree(treeNode):
-    for child in myTree.children.values():
+    for child in treeNode.children.values():
         traverse(child)
-    with open('treeIT.txt', 'w', encoding='UTF=8') as outfile:
+    with open('treeIT_00014.txt', 'w', encoding='UTF=8') as outfile:
         for items in results:
             outfile.write("%s\n" % items)
         outfile.close()
     jsondata = {
         'frequent':results
     }
-    with open('frequentItemsIT.json', 'w', encoding='utf8') as outfile:
-        json.dump(jsondata, outfile, ensure_ascii=False)
-        outfile.close()
+    # with open('frequentItemsIT.json', 'w', encoding='utf8') as outfile:
+    #     json.dump(jsondata, outfile, ensure_ascii=False)
+    #     outfile.close()
 
 mineTree(myTree)
-
-print('done in ' + str(time.time() - start))
+print('done in ' + str(time.time() - start_time))
 
 #27s create tree
-#done in 30s
+#done in 1377s
+
+#0.0012 in 1583s
+
+#0.0014 in 1150s
