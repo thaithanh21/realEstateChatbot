@@ -12,7 +12,7 @@ run FP-Tree.py or IT-Tree.py to generate frequent itemsets change c value in min
 
 if your machine cant run Data_converter. Use this generated data:
 
-https://1drv.ms/f/s!An1UosdcVaRLiAfS2RKij9I-C2Cq
+https://1drv.ms/f/s!An1UosdcVaRLikHfr5rrKtzHM-XD
 
 move frequentItemsetFP.json or frequentItemsetIT.json to recommend-app folder
 
